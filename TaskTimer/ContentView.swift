@@ -33,15 +33,14 @@ struct TaskCardView: View {
                     }
                     .padding(.horizontal)
                     .padding(.vertical, 12)
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                    )
                     
-                    Rectangle()
-                        .fill(Color.gray.opacity(0.3))
-                        .frame(height: 1)
-                        .padding(.leading, 30) // Adjust this value as needed
+                    HStack {
+                        Rectangle()
+                            .fill(Color.gray.opacity(0.3))
+                            .frame(height: 1)
+                    }
+                    .padding(.leading, 30) // Align with the text field
+                    .background(Color(.systemBackground))
                 }
                 
                 Spacer()
@@ -83,7 +82,8 @@ struct TaskCardView: View {
                 .padding(.horizontal)
             }
             .cornerRadius(12, corners: [.topLeft, .topRight])
-            
+            .background(Color(.systemBackground)) // Changed from Color(.systemGray6)
+
             HStack(spacing: 8) {
                 Button(action: {
                     task.timerRunning.toggle()
@@ -120,7 +120,7 @@ struct TaskCardView: View {
                 .frame(maxWidth: .infinity)
             }
             .padding(10)
-            .background(Color(.systemGray6))
+            .background(Color(.systemBackground)) // Changed from Color(.systemGray6)
             .cornerRadius(12, corners: [.bottomLeft, .bottomRight])
         }
         .background(task.backgroundColor)
@@ -200,6 +200,9 @@ struct ContentView: View {
         TabView(selection: $selectedTab) {
             NavigationView {
                 ZStack {
+                    Color(.systemGray6) // Add this line to set the main background color
+                        .edgesIgnoringSafeArea(.all)
+                    
                     List {
                         ForEach($tasks) { $task in
                             TaskCardView(task: $task)
@@ -216,8 +219,28 @@ struct ContentView: View {
                                     }
                                 }
                         }
+                        
+                        // Add task button at the end of the list
+                        HStack {
+                            Spacer()
+                            Button(action: addTask) {
+                                Image(systemName: "plus")
+                                    .font(.system(size: 24, weight: .bold))
+                                    .foregroundColor(.white)
+                                    .frame(width: 60, height: 60)
+                                    .background(Color.blue)
+                                    .clipShape(Circle())
+                                    .shadow(color: Color.black.opacity(0.3), radius: 5, x: 0, y: 2)
+                            }
+                            Spacer()
+                        }
+                        .padding(.vertical, 20)
+                        .listRowInsets(EdgeInsets())
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
                     }
                     .listStyle(PlainListStyle())
+                    .background(Color(.systemGray6)) // Add this line
                     
                     if showingSaveModal {
                         Color.black.opacity(0.3)
@@ -243,6 +266,7 @@ struct ContentView: View {
                         dismissButton: .default(Text("OK"))
                     )
                 }
+                
             }
             .tabItem {
                 Image(systemName: "list.bullet")
@@ -257,24 +281,7 @@ struct ContentView: View {
                 }
                 .tag(1)
         }
-        .overlay(
-            ZStack {
-                Spacer()
-                HStack {
-                    Spacer()
-                    Button(action: addTask) {
-                        Image(systemName: "plus")
-                            .font(.system(size: 24))
-                            .foregroundColor(.white)
-                            .frame(width: 60, height: 60)
-                            .background(Color.blue)
-                            .clipShape(Circle())
-                            .shadow(radius: 4)
-                    }
-                    Spacer()
-                }
-            }
-        )
+        // Remove the overlay with the floating button
     }
     
     private func addTask() {
