@@ -199,10 +199,13 @@ struct ContentView: View {
     var body: some View {
         TabView(selection: $selectedTab) {
             NavigationView {
-                ScrollView {
-                    VStack(spacing: 10) {
+                ZStack {
+                    List {
                         ForEach($tasks) { $task in
                             TaskCardView(task: $task)
+                                .listRowInsets(EdgeInsets())
+                                .listRowBackground(Color.clear)
+                                .listRowSeparator(.hidden)
                                 .swipeActions(edge: .trailing, allowsFullSwipe: true) {
                                     Button(role: .destructive) {
                                         withAnimation {
@@ -213,22 +216,19 @@ struct ContentView: View {
                                     }
                                 }
                         }
-                        
-                        Button(action: addTask) {
-                            HStack {
-                                Image(systemName: "plus.circle.fill")
-                                Text("Add New Task")
-                            }
-                            .font(.headline)
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.blue)
-                            .cornerRadius(12)
-                        }
-                        .padding(.top, 20)
                     }
-                    .padding()
+                    .listStyle(PlainListStyle())
+                    
+                    if showingSaveModal {
+                        Color.black.opacity(0.3)
+                            .edgesIgnoringSafeArea(.all)
+                            .onTapGesture {
+                                showingSaveModal = false
+                            }
+                        
+                        SaveConfigurationView(configName: $configName, onSave: saveAllConfigurations)
+                            .transition(.scale)
+                    }
                 }
                 .navigationTitle("TaskTimer")
                 .navigationBarItems(trailing: 
@@ -236,24 +236,13 @@ struct ContentView: View {
                         Image(systemName: "square.and.arrow.down")
                     }
                 )
-                
-                if showingSaveModal {
-                    Color.black.opacity(0.3)
-                        .edgesIgnoringSafeArea(.all)
-                        .onTapGesture {
-                            showingSaveModal = false
-                        }
-                    
-                    SaveConfigurationView(configName: $configName, onSave: saveAllConfigurations)
-                        .transition(.scale)
+                .alert(isPresented: $showingSaveConfirmation) {
+                    Alert(
+                        title: Text("Configuration Saved"),
+                        message: Text("Your timer configuration '\(configName)' has been saved successfully."),
+                        dismissButton: .default(Text("OK"))
+                    )
                 }
-            }
-            .alert(isPresented: $showingSaveConfirmation) {
-                Alert(
-                    title: Text("Configuration Saved"),
-                    message: Text("Your timer configuration '\(configName)' has been saved successfully."),
-                    dismissButton: .default(Text("OK"))
-                )
             }
             .tabItem {
                 Image(systemName: "list.bullet")
@@ -268,6 +257,24 @@ struct ContentView: View {
                 }
                 .tag(1)
         }
+        .overlay(
+            ZStack {
+                Spacer()
+                HStack {
+                    Spacer()
+                    Button(action: addTask) {
+                        Image(systemName: "plus")
+                            .font(.system(size: 24))
+                            .foregroundColor(.white)
+                            .frame(width: 60, height: 60)
+                            .background(Color.blue)
+                            .clipShape(Circle())
+                            .shadow(radius: 4)
+                    }
+                    Spacer()
+                }
+            }
+        )
     }
     
     private func addTask() {
