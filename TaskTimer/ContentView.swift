@@ -34,13 +34,10 @@ struct TaskCardView: View {
                     .padding(.horizontal)
                     .padding(.vertical, 12)
                     
-                    HStack {
-                        Rectangle()
-                            .fill(Color.gray.opacity(0.3))
-                            .frame(height: 1)
-                    }
-                    .padding(.leading, 30) // Align with the text field
-                    .background(Color(.systemBackground))
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.3))
+                        .frame(height: 1)
+                        .padding(.leading, 40) // Shifted to the right
                 }
                 
                 Spacer()
@@ -82,8 +79,7 @@ struct TaskCardView: View {
                 .padding(.horizontal)
             }
             .cornerRadius(12, corners: [.topLeft, .topRight])
-            .background(Color(.systemBackground)) // Changed from Color(.systemGray6)
-
+            
             HStack(spacing: 8) {
                 Button(action: {
                     task.timerRunning.toggle()
@@ -120,10 +116,10 @@ struct TaskCardView: View {
                 .frame(maxWidth: .infinity)
             }
             .padding(10)
-            .background(Color(.systemBackground)) // Changed from Color(.systemGray6)
+            .background(Color(.white))
             .cornerRadius(12, corners: [.bottomLeft, .bottomRight])
         }
-        .background(task.backgroundColor)
+        .background(Color(.white))
         .cornerRadius(12)
         .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2) // Reduced shadow
         .padding(.horizontal, 10) // Reduced horizontal padding
@@ -188,7 +184,7 @@ struct TaskCardView: View {
 }
 
 struct ContentView: View {
-    @State private var tasks: [Task] = [Task(title: "", backgroundColor: Color(UIColor.systemBackground))]
+    @State private var tasks: [Task] = [Task(title: "", backgroundColor: Color.white)]
     @State private var showSettings = false
     @State private var useRandomColors = false
     @State private var showingSaveConfirmation: Bool = false
@@ -200,57 +196,40 @@ struct ContentView: View {
         TabView(selection: $selectedTab) {
             NavigationView {
                 ZStack {
-                    Color(.systemGray6) // Add this line to set the main background color
+                    Color(.systemGray6)  // This sets the background color to light gray
                         .edgesIgnoringSafeArea(.all)
                     
-                    List {
-                        ForEach($tasks) { $task in
-                            TaskCardView(task: $task)
-                                .listRowInsets(EdgeInsets())
-                                .listRowBackground(Color.clear)
-                                .listRowSeparator(.hidden)
-                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-                                    Button(role: .destructive) {
-                                        withAnimation {
-                                            deleteTask(task: task)
+                    ScrollView {
+                        VStack(spacing: 10) {
+                            ForEach($tasks) { $task in
+                                TaskCardView(task: $task)
+                                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                        Button(role: .destructive) {
+                                            withAnimation {
+                                                deleteTask(task: task)
+                                            }
+                                        } label: {
+                                            Label("Delete", systemImage: "trash")
                                         }
-                                    } label: {
-                                        Label("Delete", systemImage: "trash")
                                     }
-                                }
-                        }
-                        
-                        // Add task button at the end of the list
-                        HStack {
-                            Spacer()
+                            }
+                            .padding()
+                            
                             Button(action: addTask) {
-                                Image(systemName: "plus")
-                                    .font(.system(size: 24, weight: .bold))
-                                    .foregroundColor(.white)
-                                    .frame(width: 60, height: 60)
-                                    .background(Color.blue)
-                                    .clipShape(Circle())
-                                    .shadow(color: Color.black.opacity(0.3), radius: 5, x: 0, y: 2)
+                                HStack {
+                                    Image(systemName: "plus.circle.fill")
+                                    Text("Add New Task")
+                                }
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.blue)
+                                .cornerRadius(12)
                             }
-                            Spacer()
+                            .padding(.top, 20)
                         }
-                        .padding(.vertical, 20)
-                        .listRowInsets(EdgeInsets())
-                        .listRowBackground(Color.clear)
-                        .listRowSeparator(.hidden)
-                    }
-                    .listStyle(PlainListStyle())
-                    .background(Color(.systemGray6)) // Add this line
-                    
-                    if showingSaveModal {
-                        Color.black.opacity(0.3)
-                            .edgesIgnoringSafeArea(.all)
-                            .onTapGesture {
-                                showingSaveModal = false
-                            }
-                        
-                        SaveConfigurationView(configName: $configName, onSave: saveAllConfigurations)
-                            .transition(.scale)
+                        .padding()
                     }
                 }
                 .navigationTitle("TaskTimer")
@@ -259,14 +238,24 @@ struct ContentView: View {
                         Image(systemName: "square.and.arrow.down")
                     }
                 )
-                .alert(isPresented: $showingSaveConfirmation) {
-                    Alert(
-                        title: Text("Configuration Saved"),
-                        message: Text("Your timer configuration '\(configName)' has been saved successfully."),
-                        dismissButton: .default(Text("OK"))
-                    )
-                }
                 
+                if showingSaveModal {
+                    Color.black.opacity(0.3)
+                        .edgesIgnoringSafeArea(.all)
+                        .onTapGesture {
+                            showingSaveModal = false
+                        }
+                    
+                    SaveConfigurationView(configName: $configName, onSave: saveAllConfigurations)
+                        .transition(.scale)
+                }
+            }
+            .alert(isPresented: $showingSaveConfirmation) {
+                Alert(
+                    title: Text("Configuration Saved"),
+                    message: Text("Your timer configuration '\(configName)' has been saved successfully."),
+                    dismissButton: .default(Text("OK"))
+                )
             }
             .tabItem {
                 Image(systemName: "list.bullet")
@@ -281,7 +270,6 @@ struct ContentView: View {
                 }
                 .tag(1)
         }
-        // Remove the overlay with the floating button
     }
     
     private func addTask() {
@@ -290,7 +278,9 @@ struct ContentView: View {
     }
     
     private func deleteTask(task: Task) {
-        tasks.removeAll { $0.id == task.id }
+        if let index = tasks.firstIndex(where: { $0.id == task.id }) {
+            tasks.remove(at: index)
+        }
     }
     
     private func saveAllConfigurations() {
