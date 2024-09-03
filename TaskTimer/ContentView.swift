@@ -26,6 +26,7 @@ struct TaskCardView: View {
             HStack {
                 TextField("Enter task title", text: $task.title)
                     .font(.headline)
+                    .foregroundColor(task.title.isEmpty ? Color(.placeholderText) : .primary)
                     .padding()
                 Spacer()
                 ZStack {
@@ -58,10 +59,10 @@ struct TaskCardView: View {
                         }
                     }
                 }
-                .frame(height: 100)  // Fixed height for both stopwatch and timer
+                .frame(height: 90)  // Fixed height for both stopwatch and timer
                 .padding(.horizontal)
             }
-            .background(Color(.systemGray6))
+            .background(Color(.systemBackground))
             .cornerRadius(12, corners: [.topLeft, .topRight])
             
             HStack(spacing: 8) {
@@ -176,7 +177,7 @@ struct ContentView: View {
         NavigationView {
             VStack {
                 ScrollView {
-                    VStack(spacing: 0) { // Remove spacing between cards
+                    VStack(spacing: 0) { // Negative spacing to overlap cards slightly
                         ForEach($tasks) { $task in
                             TaskCardView(task: $task)
                                 .gesture(DragGesture().onEnded { value in
@@ -212,8 +213,8 @@ struct ContentView: View {
     }
     
     private func addTask() {
-        let newColor = useRandomColors ? Color.random().opacity(0.2) : Color(UIColor.systemBackground)
-        tasks.append(Task(title: "New Task", backgroundColor: newColor))
+        let newColor = useRandomColors ? Color.random().opacity(0.2) : Color(.systemBackground)
+        tasks.append(Task(title: "", backgroundColor: newColor))
     }
     
     private func deleteTask(task: Task) {
