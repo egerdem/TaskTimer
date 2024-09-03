@@ -105,9 +105,10 @@ struct TaskCardView: View {
         }
         .background(task.backgroundColor)
         .cornerRadius(12)
-        .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 5)
-        .padding()
-        .frame(height: 200)  // Fixed height for the entire card
+        .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2) // Reduced shadow
+        .padding(.horizontal, 10) // Reduced horizontal padding
+        .padding(.vertical, 5)   // Reduced vertical padding
+        .frame(height: 180)  // Slightly reduced height for the entire card
         .onAppear(perform: updateInputs)
         .onChange(of: task.timerType) { _ in updateInputs() }
         .onChange(of: selectedMinutes) { _ in updateCountdownTime() }
@@ -175,14 +176,17 @@ struct ContentView: View {
         NavigationView {
             VStack {
                 ScrollView {
-                    ForEach($tasks) { $task in
-                        TaskCardView(task: $task)
-                            .gesture(DragGesture().onEnded { value in
-                                if value.translation.width < -50 {
-                                    deleteTask(task: task)
-                                }
-                            })
+                    VStack(spacing: 0) { // Remove spacing between cards
+                        ForEach($tasks) { $task in
+                            TaskCardView(task: $task)
+                                .gesture(DragGesture().onEnded { value in
+                                    if value.translation.width < -50 {
+                                        deleteTask(task: task)
+                                    }
+                                })
+                        }
                     }
+                    .padding(.vertical, 5) // Reduced vertical padding
                 }
                 
                 Button(action: addTask) {
