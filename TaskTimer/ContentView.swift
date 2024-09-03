@@ -38,7 +38,9 @@ struct TaskCardView: View {
                         HStack(spacing: 0) {
                             Picker("Minutes", selection: $selectedMinutes) {
                                 ForEach(0..<60) { minute in
-                                    Text("\(minute)").tag(minute)
+                                    Text("\(minute)")
+                                        .tag(minute)
+                                        .font(.system(size: 28, weight: .bold, design: .rounded))
                                 }
                             }
                             .pickerStyle(WheelPickerStyle())
@@ -50,7 +52,9 @@ struct TaskCardView: View {
                             
                             Picker("Seconds", selection: $selectedSeconds) {
                                 ForEach(0..<60) { second in
-                                    Text("\(second)").tag(second)
+                                    Text("\(second)")
+                                        .tag(second)
+                                        .font(.system(size: 28, weight: .bold, design: .rounded))
                                 }
                             }
                             .pickerStyle(WheelPickerStyle())
@@ -111,9 +115,9 @@ struct TaskCardView: View {
         .padding(.vertical, 5)   // Reduced vertical padding
         .frame(height: 180)  // Slightly reduced height for the entire card
         .onAppear(perform: updateInputs)
-        .onChange(of: task.timerType) { _ in updateInputs() }
-        .onChange(of: selectedMinutes) { _ in updateCountdownTime() }
-        .onChange(of: selectedSeconds) { _ in updateCountdownTime() }
+        .onChange(of: task.timerType) { _, _ in updateInputs() }
+        .onChange(of: selectedMinutes) { _, _ in updateCountdownTime() }
+        .onChange(of: selectedSeconds) { _, _ in updateCountdownTime() }
     }
     
     private func startTimer() {
@@ -259,4 +263,8 @@ struct RoundedCorner: Shape {
         let path = UIBezierPath(roundedRect: rect, byRoundingCorners: corners, cornerRadii: CGSize(width: radius, height: radius))
         return Path(path.cgPath)
     }
+}
+
+#Preview {
+    ContentView()
 }
