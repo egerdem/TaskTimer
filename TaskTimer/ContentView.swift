@@ -24,10 +24,26 @@ struct TaskCardView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                TextField("Enter task title", text: $task.title)
-                    .font(.headline)
-                    .foregroundColor(task.title.isEmpty ? Color(.placeholderText) : .primary)
-                    .padding()
+                VStack(alignment: .leading, spacing: 0) {
+                    HStack {
+                        Image(systemName: "pencil")
+                            .foregroundColor(.gray)
+                        TextField("Enter task title", text: $task.title)
+                            .font(.headline)
+                    }
+                    .padding(.horizontal)
+                    .padding(.vertical, 12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                    )
+                    
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.3))
+                        .frame(height: 1)
+                        .padding(.leading, 30) // Adjust this value as needed
+                }
+                
                 Spacer()
                 ZStack {
                     if task.timerType == .stopwatch {
@@ -66,7 +82,6 @@ struct TaskCardView: View {
                 .frame(height: 90)  // Fixed height for both stopwatch and timer
                 .padding(.horizontal)
             }
-            .background(Color(.systemBackground))
             .cornerRadius(12, corners: [.topLeft, .topRight])
             
             HStack(spacing: 8) {
@@ -176,43 +191,82 @@ struct ContentView: View {
     @State private var tasks: [Task] = [Task(title: "", backgroundColor: Color(UIColor.systemBackground))]
     @State private var showSettings = false
     @State private var useRandomColors = false
+    @State private var showingSaveConfirmation: Bool = false
+    @State private var showingSaveModal = false
+    @State private var configName: String = ""
+    @State private var selectedTab = 0
 
     var body: some View {
-        NavigationView {
-            VStack {
+        TabView(selection: $selectedTab) {
+            NavigationView {
                 ScrollView {
-                    VStack(spacing: 0) { // Negative spacing to overlap cards slightly
+                    VStack(spacing: 10) {
                         ForEach($tasks) { $task in
                             TaskCardView(task: $task)
-                                .gesture(DragGesture().onEnded { value in
-                                    if value.translation.width < -50 {
-                                        deleteTask(task: task)
+                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                    Button(role: .destructive) {
+                                        withAnimation {
+                                            deleteTask(task: task)
+                                        }
+                                    } label: {
+                                        Label("Delete", systemImage: "trash")
                                     }
-                                })
+                                }
                         }
+                        
+                        Button(action: addTask) {
+                            HStack {
+                                Image(systemName: "plus.circle.fill")
+                                Text("Add New Task")
+                            }
+                            .font(.headline)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.blue)
+                            .cornerRadius(12)
+                        }
+                        .padding(.top, 20)
                     }
-                    .padding(.vertical, 5) // Reduced vertical padding
+                    .padding()
                 }
+                .navigationTitle("TaskTimer")
+                .navigationBarItems(trailing: 
+                    Button(action: { showingSaveModal = true }) {
+                        Image(systemName: "square.and.arrow.down")
+                    }
+                )
                 
-                Button(action: addTask) {
-                    Image(systemName: "plus")
-                        .font(.system(size: 24))
-                        .padding()
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .clipShape(Circle())
+                if showingSaveModal {
+                    Color.black.opacity(0.3)
+                        .edgesIgnoringSafeArea(.all)
+                        .onTapGesture {
+                            showingSaveModal = false
+                        }
+                    
+                    SaveConfigurationView(configName: $configName, onSave: saveAllConfigurations)
+                        .transition(.scale)
                 }
-                .padding(.bottom, 20)
             }
-            .navigationTitle("TaskTimer")
-            .toolbar {
-                Button(action: { showSettings.toggle() }) {
+            .alert(isPresented: $showingSaveConfirmation) {
+                Alert(
+                    title: Text("Configuration Saved"),
+                    message: Text("Your timer configuration '\(configName)' has been saved successfully."),
+                    dismissButton: .default(Text("OK"))
+                )
+            }
+            .tabItem {
+                Image(systemName: "list.bullet")
+                Text("Tasks")
+            }
+            .tag(0)
+            
+            SettingsView(useRandomColors: $useRandomColors)
+                .tabItem {
                     Image(systemName: "gear")
+                    Text("Settings")
                 }
-            }
-            .sheet(isPresented: $showSettings) {
-                SettingsView(useRandomColors: $useRandomColors)
-            }
+                .tag(1)
         }
     }
     
@@ -224,22 +278,56 @@ struct ContentView: View {
     private func deleteTask(task: Task) {
         tasks.removeAll { $0.id == task.id }
     }
+    
+    private func saveAllConfigurations() {
+        // Implement save logic here
+        print("Saving all configurations with name: \(configName)")
+        showingSaveConfirmation = true
+        showingSaveModal = false
+    }
+}
+
+struct SaveConfigurationView: View {
+    @Binding var configName: String
+    var onSave: () -> Void
+    @Environment(\.presentationMode) var presentationMode
+
+    var body: some View {
+        VStack(spacing: 20) {
+            Text("Save Configuration")
+                .font(.headline)
+            
+            TextField("Configuration Name", text: $configName)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .padding(.horizontal)
+            
+            HStack(spacing: 20) {
+                Button("Cancel") {
+                    presentationMode.wrappedValue.dismiss()
+                }
+                
+                Button("Save") {
+                    onSave()
+                }
+                .disabled(configName.isEmpty)
+            }
+        }
+        .padding()
+        .background(Color(.systemBackground))
+        .cornerRadius(15)
+        .shadow(radius: 10)
+        .frame(width: 300, height: 200)
+    }
 }
 
 struct SettingsView: View {
     @Binding var useRandomColors: Bool
-    @Environment(\.presentationMode) var presentationMode
 
     var body: some View {
-        NavigationView {
-            Form {
-                Toggle("Use Random Colors for Cards", isOn: $useRandomColors)
-            }
-            .navigationTitle("Settings")
-            .navigationBarItems(trailing: Button("Done") {
-                presentationMode.wrappedValue.dismiss()
-            })
+        Form {
+            Toggle("Use Random Colors for Cards", isOn: $useRandomColors)
         }
+        .navigationTitle("Settings")
     }
 }
 
