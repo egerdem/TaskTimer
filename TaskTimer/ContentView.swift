@@ -18,98 +18,100 @@ struct Task: Identifiable {
 struct TaskCardView: View {
     @Binding var task: Task
     @State private var timer: Timer?
-    @State private var minutesInput: String = "00"
-    @State private var secondsInput: String = "00"
+    @State private var selectedMinutes: Int = 0
+    @State private var selectedSeconds: Int = 0
     
     var body: some View {
-        HStack {
-            TextField("Enter task title", text: $task.title)
-                .background(Color.clear)
-                .textFieldStyle(PlainTextFieldStyle())
-                .padding(.horizontal)
-                .foregroundColor(task.title.isEmpty ? Color.gray : Color.primary)
-
-            Divider()
-
-            VStack {
-                if task.timerType == .stopwatch {
-                    Text(formatTime(task.elapsedTime))
-                        .font(.system(size: 24, weight: .bold))
-                        .frame(width: 100)
-                } else {
-                    HStack {
-                        TextField("Min", text: $minutesInput)
-                            .keyboardType(.numberPad)
-                            .font(.system(size: 24, weight: .bold))
-                            .multilineTextAlignment(.center)
-                            .frame(width: 40)
-                        
-                        Text(":")
-                            .font(.system(size: 24, weight: .bold))
-                        
-                        TextField("Sec", text: $secondsInput)
-                            .keyboardType(.numberPad)
-                            .font(.system(size: 24, weight: .bold))
-                            .multilineTextAlignment(.center)
-                            .frame(width: 40)
-                    }
-                }
-
-                HStack {
-                    Button(action: {
-                        task.timerRunning.toggle()
-                        if task.timerRunning {
-                            startTimer()
-                        } else {
-                            pauseTimer()
+        VStack(spacing: 0) {
+            HStack {
+                TextField("Enter task title", text: $task.title)
+                    .font(.headline)
+                    .padding()
+                Spacer()
+                ZStack {
+                    if task.timerType == .stopwatch {
+                        Text(formatTime(task.elapsedTime))
+                            .font(.system(size: 28, weight: .bold, design: .rounded))
+                            .foregroundColor(.primary)
+                    } else {
+                        HStack(spacing: 0) {
+                            Picker("Minutes", selection: $selectedMinutes) {
+                                ForEach(0..<60) { minute in
+                                    Text("\(minute)").tag(minute)
+                                }
+                            }
+                            .pickerStyle(WheelPickerStyle())
+                            .frame(width: 60)
+                            .clipped()
+                            
+                            Text(":")
+                                .font(.system(size: 28, weight: .bold, design: .rounded))
+                            
+                            Picker("Seconds", selection: $selectedSeconds) {
+                                ForEach(0..<60) { second in
+                                    Text("\(second)").tag(second)
+                                }
+                            }
+                            .pickerStyle(WheelPickerStyle())
+                            .frame(width: 60)
+                            .clipped()
                         }
-                    }) {
-                        Text(task.timerRunning ? "Pause" : "Start")
-                            .font(.system(size: 12))
-                            .foregroundColor(.black)
-                            .frame(width: 60, height: 40)
-                            .background(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(task.timerRunning ? Color.red.opacity(0.7) : Color.green.opacity(0.7))
-                            )
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(Color.black, lineWidth: 1)
-                            )
-                    }
-
-                    Button(action: resetTimer) {
-                        Text("Reset")
-                            .font(.system(size: 12))
-                            .foregroundColor(.black)
-                            .frame(width: 60, height: 40)
-                            .background(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .fill(Color.gray.opacity(0.3))
-                            )
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 8)
-                                    .stroke(Color.black, lineWidth: 1)
-                            )
                     }
                 }
-
+                .frame(height: 100)  // Fixed height for both stopwatch and timer
+                .padding(.horizontal)
+            }
+            .background(Color(.systemGray6))
+            .cornerRadius(12, corners: [.topLeft, .topRight])
+            
+            HStack(spacing: 8) {
+                Button(action: {
+                    task.timerRunning.toggle()
+                    if task.timerRunning {
+                        startTimer()
+                    } else {
+                        pauseTimer()
+                    }
+                }) {
+                    Text(task.timerRunning ? "Pause" : "Start")
+                        .font(.subheadline)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 8)
+                        .background(task.timerRunning ? Color.orange : Color.green)
+                        .cornerRadius(8)
+                }
+                
+                Button(action: resetTimer) {
+                    Text("Reset")
+                        .font(.subheadline)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 8)
+                        .background(Color.red)
+                        .cornerRadius(8)
+                }
+                
                 Picker("", selection: $task.timerType) {
                     Image(systemName: "stopwatch").tag(Task.TimerType.stopwatch)
                     Image(systemName: "timer").tag(Task.TimerType.countdown)
                 }
                 .pickerStyle(SegmentedPickerStyle())
-                .padding(10)
-                .background(Color.white.opacity(0.8))
+                .frame(maxWidth: .infinity)
             }
-            .padding()
+            .padding(10)
+            .background(Color(.systemGray6))
+            .cornerRadius(12, corners: [.bottomLeft, .bottomRight])
         }
         .background(task.backgroundColor)
-        .cornerRadius(10)
-        .shadow(radius: 5)
+        .cornerRadius(12)
+        .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 5)
         .padding()
+        .frame(height: 200)  // Fixed height for the entire card
         .onAppear(perform: updateInputs)
         .onChange(of: task.timerType) { _ in updateInputs() }
+        .onChange(of: selectedMinutes) { _ in updateCountdownTime() }
+        .onChange(of: selectedSeconds) { _ in updateCountdownTime() }
     }
     
     private func startTimer() {
@@ -138,7 +140,7 @@ struct TaskCardView: View {
         if task.timerType == .stopwatch {
             task.elapsedTime = 0
         } else {
-            task.countdownTime = TimeInterval(Int(minutesInput) ?? 0) * 60 + TimeInterval(Int(secondsInput) ?? 0)
+            updateCountdownTime()
         }
         updateInputs()
     }
@@ -151,16 +153,16 @@ struct TaskCardView: View {
     
     private func updateInputs() {
         if task.timerType == .countdown {
-            let minutes = Int(task.countdownTime) / 60
-            let seconds = Int(task.countdownTime) % 60
-            minutesInput = String(format: "%02d", minutes)
-            secondsInput = String(format: "%02d", seconds)
+            selectedMinutes = Int(task.countdownTime) / 60
+            selectedSeconds = Int(task.countdownTime) % 60
         } else {
-            let minutes = Int(task.elapsedTime) / 60
-            let seconds = Int(task.elapsedTime) % 60
-            minutesInput = String(format: "%02d", minutes)
-            secondsInput = String(format: "%02d", seconds)
+            selectedMinutes = Int(task.elapsedTime) / 60
+            selectedSeconds = Int(task.elapsedTime) % 60
         }
+    }
+    
+    private func updateCountdownTime() {
+        task.countdownTime = TimeInterval(selectedMinutes * 60 + selectedSeconds)
     }
 }
 
@@ -235,5 +237,21 @@ struct SettingsView: View {
 extension Color {
     static func random() -> Color {
         Color(red: .random(in: 0...1), green: .random(in: 0...1), blue: .random(in: 0...1))
+    }
+}
+
+extension View {
+    func cornerRadius(_ radius: CGFloat, corners: UIRectCorner) -> some View {
+        clipShape(RoundedCorner(radius: radius, corners: corners))
+    }
+}
+
+struct RoundedCorner: Shape {
+    var radius: CGFloat = .infinity
+    var corners: UIRectCorner = .allCorners
+
+    func path(in rect: CGRect) -> Path {
+        let path = UIBezierPath(roundedRect: rect, byRoundingCorners: corners, cornerRadii: CGSize(width: radius, height: radius))
+        return Path(path.cgPath)
     }
 }
