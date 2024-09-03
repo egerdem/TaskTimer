@@ -115,12 +115,12 @@ struct TaskCardView: View {
     }
     
     private func startTimer() {
-        timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
+        timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
             if task.timerType == .stopwatch {
-                task.elapsedTime += 0.1
+                task.elapsedTime += 1
             } else {
                 if task.countdownTime > 0 {
-                    task.countdownTime -= 0.1
+                    task.countdownTime -= 1
                 } else {
                     task.timerRunning = false
                     timer?.invalidate()
