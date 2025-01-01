@@ -9,16 +9,16 @@
 /* Begin PBXBuildFile section */
 		D43E97492C73983B00AF5913 /* TaskTimerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D43E97482C73983B00AF5913 /* TaskTimerApp.swift */; };
 		D43E974B2C73983B00AF5913 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D43E974A2C73983B00AF5913 /* ContentView.swift */; };
-		D43E974D2C73983C00AF5913 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D43E974C2C73983C00AF5913 /* Assets.xcassets */; };
 		D43E97502C73983C00AF5913 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D43E974F2C73983C00AF5913 /* Preview Assets.xcassets */; };
+		D48245B42D1B1A180023A023 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D48245B32D1B1A180023A023 /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		D43E97452C73983B00AF5913 /* TaskTimer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TaskTimer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D43E97482C73983B00AF5913 /* TaskTimerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskTimerApp.swift; sourceTree = "<group>"; };
 		D43E974A2C73983B00AF5913 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
-		D43E974C2C73983C00AF5913 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D43E974F2C73983C00AF5913 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		D48245B32D1B1A180023A023 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = AppIcons/Assets.xcassets; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -53,7 +53,7 @@
 			children = (
 				D43E97482C73983B00AF5913 /* TaskTimerApp.swift */,
 				D43E974A2C73983B00AF5913 /* ContentView.swift */,
-				D43E974C2C73983C00AF5913 /* Assets.xcassets */,
+				D48245B32D1B1A180023A023 /* Assets.xcassets */,
 				D43E974E2C73983C00AF5913 /* Preview Content */,
 			);
 			path = TaskTimer;
@@ -126,7 +126,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D43E97502C73983C00AF5913 /* Preview Assets.xcassets in Resources */,
-				D43E974D2C73983C00AF5913 /* Assets.xcassets in Resources */,
+				D48245B42D1B1A180023A023 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -270,11 +270,12 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"TaskTimer/Preview Content\"";
 				DEVELOPMENT_TEAM = V72VWG5726;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -284,8 +285,8 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.example1.TaskTimer;
+				MARKETING_VERSION = 1.0.100;
+				PRODUCT_BUNDLE_IDENTIFIER = com.musixpace.TaskTimer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
@@ -299,11 +300,12 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"TaskTimer/Preview Content\"";
 				DEVELOPMENT_TEAM = V72VWG5726;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -313,8 +315,8 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.example1.TaskTimer;
+				MARKETING_VERSION = 1.0.100;
+				PRODUCT_BUNDLE_IDENTIFIER = com.musixpace.TaskTimer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
