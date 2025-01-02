@@ -162,54 +162,48 @@ struct TaskCardView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            HStack {
-                VStack(alignment: .leading, spacing: 0) {
-                    HStack {
-                        Image(systemName: "pencil")
-                            .foregroundColor(.gray)
-                        TextField("Enter task title", text: $task.title)
-                            .font(.headline)
+            // Main card content with fixed height
+            VStack(spacing: 0) {
+                HStack(spacing: 0) {
+                    // Title section - Left side
+                    VStack(alignment: .leading, spacing: 0) {
+                        HStack {
+                            Image(systemName: "pencil")
+                                .foregroundColor(.secondary)
+                            TextField("Enter task title", text: $task.title)
+                                .font(.headline)
+                                .lineLimit(1)
+                                .truncationMode(.tail)
+                                .foregroundColor(.primary)
+                        }
+                        .padding(.horizontal)
+                        .padding(.vertical, 10)
+                        
+                        Rectangle()
+                            .fill(Color.gray.opacity(0.3))
+                            .frame(height: 1)
+                            .padding(.leading, 40)
                     }
-                    .padding(.horizontal)
-                    .padding(.vertical, 12)
+                    .frame(minWidth: 100, maxWidth: 250, alignment: .leading) // More flexible width
                     
-                    Rectangle()
-                        .fill(Color.gray.opacity(0.3))
-                        .frame(height: 1)
-                        .padding(.leading, 40) // Shifted to the right
-                }
-                
-                Spacer()
-                ZStack {
-                    if task.timerType == .stopwatch {
-                        // Center the stopwatch display
-                        HStack(spacing: 0) {
+                    Spacer() // Add spacer to push time display to the right
+                    
+                    // Time display section
+                    HStack() {
+                        if task.timerType == .stopwatch {
                             Text(formatTime(task.elapsedTime))
                                 .font(.system(size: 28, weight: .bold, design: .rounded))
                                 .foregroundColor(.primary)
-                                .frame(width: 120) // Fixed width to match picker
-                                .multilineTextAlignment(.center)
-                        }
-                        .frame(height: 90)
-                    } else {
-                        if task.timerRunning {
-                            // Center the countdown display when running
-                            HStack(spacing: 10) {
+                                .frame(width: 90)
+                                .multilineTextAlignment(.trailing)
+                        } else {
+                            if task.timerRunning {
                                 Text(formatTime(task.countdownTime))
                                     .font(.system(size: 28, weight: .bold, design: .rounded))
                                     .foregroundColor(.primary)
-                                    .frame(width: 120) // Fixed width to match picker
-                                    .multilineTextAlignment(.center)
-                            }
-                            .frame(height: 90)
-                            .onTapGesture {
-                                task.timerRunning = false
-                            }
-                        } else {
-                            // Align the picker components
-                            HStack(spacing: 0) {
-                                Spacer()  // Add spacer for centering
-                                
+                                    .frame(width: 90)
+                                    .multilineTextAlignment(.trailing)
+                            } else {
                                 HStack(spacing: 0) {
                                     Picker("Minutes", selection: $selectedMinutes) {
                                         ForEach(0..<60) { minute in
@@ -219,13 +213,12 @@ struct TaskCardView: View {
                                         }
                                     }
                                     .pickerStyle(WheelPickerStyle())
-                                    .frame(width: 50)
+                                    .frame(width: 60)
                                     .clipped()
                                     
                                     Text(":")
                                         .font(.system(size: 28, weight: .bold, design: .rounded))
-                                        .frame(width: 20)
-                                        .multilineTextAlignment(.center)
+                                        .frame(width: 10)
                                     
                                     Picker("Seconds", selection: $selectedSeconds) {
                                         ForEach(0..<60) { second in
@@ -235,60 +228,65 @@ struct TaskCardView: View {
                                         }
                                     }
                                     .pickerStyle(WheelPickerStyle())
-                                    .frame(width: 50)
+                                    .frame(width: 60)
                                     .clipped()
                                 }
-                                
-                                Spacer()  // Add spacer for centering
                             }
-                            .frame(height: 90)
                         }
                     }
+                    .frame(height: 60)
+                    .padding(.trailing, 10)
                 }
-                .frame(width: 120) // Consistent width for all states
-                .padding(.horizontal)
-            }
-            .cornerRadius(12, corners: [.topLeft, .topRight])
-            
-            HStack(spacing: 8) {
-                Button(action: {
-                    task.timerRunning.toggle()
-                    if task.timerRunning {
-                        startTimer()
-                    } else {
-                        pauseTimer()
+                .cornerRadius(12, corners: [.topLeft, .topRight])
+                
+                HStack(spacing: 8) {
+                    Button(action: {
+                        task.timerRunning.toggle()
+                        if task.timerRunning {
+                            startTimer()
+                        } else {
+                            pauseTimer()
+                        }
+                    }) {
+                        Text(task.timerRunning ? "Pause" : "Start")
+                            .font(.subheadline)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 8)
+                            .background(task.timerRunning ? Color.orange : Color.green)
+                            .cornerRadius(8)
                     }
-                }) {
-                    Text(task.timerRunning ? "Pause" : "Start")
-                        .font(.subheadline)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 8)
-                        .background(task.timerRunning ? Color.orange : Color.green)
-                        .cornerRadius(8)
+                    
+                    Button(action: resetTimer) {
+                        Text("Reset")
+                            .font(.subheadline)
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 8)
+                            .background(Color.red)
+                            .cornerRadius(8)
+                    }
+                    
+                    Picker("", selection: $task.timerType) {
+                        Image(systemName: "stopwatch")
+                            .foregroundColor(task.timerType == .stopwatch ? .white : .primary)
+                            .tag(Task.TimerType.stopwatch)
+                        Image(systemName: "timer")
+                            .foregroundColor(task.timerType == .countdown ? .white : .primary)
+                            .tag(Task.TimerType.countdown)
+                    }
+                    .pickerStyle(SegmentedPickerStyle())
+                    .frame(maxWidth: .infinity)
+                    .background(Color(uiColor: .tertiarySystemBackground))
+                    .cornerRadius(8)
                 }
-                
-                Button(action: resetTimer) {
-                    Text("Reset")
-                        .font(.subheadline)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 8)
-                        .background(Color.red)
-                        .cornerRadius(8)
-                }
-                
-                Picker("", selection: $task.timerType) {
-                    Image(systemName: "stopwatch").tag(Task.TimerType.stopwatch)
-                    Image(systemName: "timer").tag(Task.TimerType.countdown)
-                }
-                .pickerStyle(SegmentedPickerStyle())
-                .frame(maxWidth: .infinity)
+                .padding(10)
+                .background(.white)
+                .cornerRadius(12, corners: task.timerType == .countdown ? [] : [.bottomLeft, .bottomRight])
             }
-            .padding(10)
-            .background(.white)
-            .cornerRadius(12, corners: [.bottomLeft, .bottomRight])
+            .frame(height: 120) // Keep main content fixed height
             
+            // Connection section that appears below
             if task.timerType == .countdown {
                 HStack {
                     Menu {
@@ -300,8 +298,10 @@ struct TaskCardView: View {
                             }) {
                                 HStack {
                                     Text(nextTask.title.isEmpty ? "Untitled" : nextTask.title)
+                                        .foregroundColor(.primary)
                                     if task.nextTaskId == nextTask.id {
                                         Image(systemName: "checkmark")
+                                            .foregroundColor(.blue)
                                     }
                                 }
                             }
@@ -320,7 +320,7 @@ struct TaskCardView: View {
                             Text("Connect to")
                         }
                         .font(.caption)
-                        .foregroundColor(.gray)
+                        .foregroundColor(.secondary)
                     }
                     
                     // Connection indicator next to the button
@@ -328,24 +328,25 @@ struct TaskCardView: View {
                        let nextTask = allTasks.first(where: { $0.id == nextTaskId }) {
                         Text("\(task.title.isEmpty ? "Untitled" : task.title) → \(nextTask.title.isEmpty ? "Untitled" : nextTask.title)")
                             .font(.caption)
-                            .foregroundColor(.gray)
+                            .foregroundColor(.secondary)
                     }
                     
                     if let previousTask = allTasks.first(where: { $0.nextTaskId == task.id }) {
                         Text("\(task.title.isEmpty ? "Untitled" : task.title) ← \(previousTask.title.isEmpty ? "Untitled" : previousTask.title)")
                             .font(.caption)
-                            .foregroundColor(.gray)
+                            .foregroundColor(.secondary)
                     }
                 }
                 .padding(.vertical, 4)
                 .padding(.bottom, 8)
+                .background(Color(uiColor: .systemBackground))  // Use system background color
+                .cornerRadius(12, corners: [.bottomLeft, .bottomRight])
             }
         }
-        .background(task.backgroundColor) // text field color
+        .background(Color(uiColor: .systemBackground))
         .cornerRadius(12)
         .padding(.horizontal, 8)
         .padding(.vertical, 2)
-        .frame(height: 180)
         .onAppear(perform: updateInputs)
         .onChange(of: task.timerType) { _, _ in updateInputs() }
         .onChange(of: selectedMinutes) { _, _ in updateCountdownTime() }
@@ -504,7 +505,7 @@ struct ContentView: View {
             } else {
                 // When there are tasks, show the scrollable list
                 ScrollView {
-                    VStack(spacing: 2) {
+                    VStack(spacing: 20) {
                         ForEach(tasks) { task in
                             TaskCardView(task: binding(for: task), allTasks: $tasks)
                                 .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
