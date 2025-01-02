@@ -182,51 +182,70 @@ struct TaskCardView: View {
                 Spacer()
                 ZStack {
                     if task.timerType == .stopwatch {
-                        Text(formatTime(task.elapsedTime))
-                            .font(.system(size: 28, weight: .bold, design: .rounded))
-                            .foregroundColor(.primary)
-                    } else {
-                        if task.timerRunning {
-                            // Show countdown display when running
-                            Text(formatTime(task.countdownTime))
+                        // Center the stopwatch display
+                        HStack(spacing: 0) {
+                            Text(formatTime(task.elapsedTime))
                                 .font(.system(size: 28, weight: .bold, design: .rounded))
                                 .foregroundColor(.primary)
-                                .onTapGesture {
-                                    // Allow stopping timer to edit time
-                                    task.timerRunning = false
-                                }
-                        } else {
-                            // Show time picker when not running
-                            HStack(spacing: 0) {
-                                Picker("Minutes", selection: $selectedMinutes) {
-                                    ForEach(0..<60) { minute in
-                                        Text("\(minute)")
-                                            .tag(minute)
-                                            .font(.system(size: 28, weight: .bold, design: .rounded))
-                                    }
-                                }
-                                .pickerStyle(WheelPickerStyle())
-                                .frame(width: 60)
-                                .clipped()
-                                
-                                Text(":")
+                                .frame(width: 120) // Fixed width to match picker
+                                .multilineTextAlignment(.center)
+                        }
+                        .frame(height: 90)
+                    } else {
+                        if task.timerRunning {
+                            // Center the countdown display when running
+                            HStack(spacing: 10) {
+                                Text(formatTime(task.countdownTime))
                                     .font(.system(size: 28, weight: .bold, design: .rounded))
-                                
-                                Picker("Seconds", selection: $selectedSeconds) {
-                                    ForEach(0..<60) { second in
-                                        Text("\(second)")
-                                            .tag(second)
-                                            .font(.system(size: 28, weight: .bold, design: .rounded))
-                                    }
-                                }
-                                .pickerStyle(WheelPickerStyle())
-                                .frame(width: 60)
-                                .clipped()
+                                    .foregroundColor(.primary)
+                                    .frame(width: 120) // Fixed width to match picker
+                                    .multilineTextAlignment(.center)
                             }
+                            .frame(height: 90)
+                            .onTapGesture {
+                                task.timerRunning = false
+                            }
+                        } else {
+                            // Align the picker components
+                            HStack(spacing: 0) {
+                                Spacer()  // Add spacer for centering
+                                
+                                HStack(spacing: 0) {
+                                    Picker("Minutes", selection: $selectedMinutes) {
+                                        ForEach(0..<60) { minute in
+                                            Text("\(minute)")
+                                                .tag(minute)
+                                                .font(.system(size: 28, weight: .bold, design: .rounded))
+                                        }
+                                    }
+                                    .pickerStyle(WheelPickerStyle())
+                                    .frame(width: 50)
+                                    .clipped()
+                                    
+                                    Text(":")
+                                        .font(.system(size: 28, weight: .bold, design: .rounded))
+                                        .frame(width: 20)
+                                        .multilineTextAlignment(.center)
+                                    
+                                    Picker("Seconds", selection: $selectedSeconds) {
+                                        ForEach(0..<60) { second in
+                                            Text("\(second)")
+                                                .tag(second)
+                                                .font(.system(size: 28, weight: .bold, design: .rounded))
+                                        }
+                                    }
+                                    .pickerStyle(WheelPickerStyle())
+                                    .frame(width: 50)
+                                    .clipped()
+                                }
+                                
+                                Spacer()  // Add spacer for centering
+                            }
+                            .frame(height: 90)
                         }
                     }
                 }
-                .frame(height: 90)
+                .frame(width: 120) // Consistent width for all states
                 .padding(.horizontal)
             }
             .cornerRadius(12, corners: [.topLeft, .topRight])
@@ -298,7 +317,7 @@ struct TaskCardView: View {
                     } label: {
                         HStack {
                             Image(systemName: "link")
-                            Text("Connect a Task")
+                            Text("Connect to")
                         }
                         .font(.caption)
                         .foregroundColor(.gray)
