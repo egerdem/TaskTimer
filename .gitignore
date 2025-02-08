@@ -1,1 +1,46 @@
 /.DS_Store
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+*.xccheckout
+build/
+DerivedData/
+*.moved-aside
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+TaskTimer/Preview\ Content/
+AppIcons/Assets.xcassets/
+*.hmap
+*.ipa
+*.dSYM.zip
+*.dSYM
+.build/
+Packages/
+Package.pins
+Package.resolved
+.swiftpm/
+
+# Image files
+*.mov
+*.png
+*.jpeg
+*.jpg
+*.gif
+*.ico
+*.webp
+
+# Except specific asset directories that should be tracked
+!AppIcons/Assets.xcassets/**/*.png
+!AppIcons/Assets.xcassets/**/*.jpg
+!AppIcons/Assets.xcassets/**/*.jpeg
+
+# Preview assets
+TaskTimer/Preview Content/**/*.png
+TaskTimer/Preview Content/**/*.jpg
+TaskTimer/Preview Content/**/*.jpeg
